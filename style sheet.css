@@ -71,7 +71,6 @@ br {
 }
 
 .hero-image {
-    height: auto;
     animation: fromRight 1s ease-out;
 }
 
@@ -496,19 +495,23 @@ br {
     }
 
     #Home > img {
-        width: 40%;
-        right: 2rem;
-        top: 3.75rem;
+        position: relative;
+        width: min(80%, 22rem);
+        height: auto;
+        right: auto;
+        top: auto;
+        display: block;
+        margin: 1.5rem auto 0;
     }
 
     #Home > h1 {
-        width: 45%;
+        width: 100%;
         font-size: 2rem;
         line-height: 2.5rem;
     }
 
     #Home > p {
-        width: 45%;
+        width: 100%;
         font-size: 1.4rem;
     }
 
