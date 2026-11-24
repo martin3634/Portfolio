@@ -71,6 +71,7 @@ br {
 }
 
 .hero-image {
+    height: auto;
     animation: fromRight 1s ease-out;
 }
 
