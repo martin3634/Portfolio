@@ -4,7 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0a">
     <title>My Portfolio</title>
+    <style>
+        html, body { background: #0a0a0a; color-scheme: dark; }
+        header { background: #111; }
+    </style>
+    <link rel="preload" as="image" href="./martin%20logo%20svg.png">
+    <link rel="preload" as="image" href="./Photo_realistic_smooth.png" fetchpriority="high">
     <link rel="stylesheet" href="style sheet.css">
 </head>
 
@@ -55,6 +62,10 @@
                 class="hero-image"
                 src="./Photo_realistic_smooth.png"
                 alt="my profile"
+                width="1083"
+                height="1280"
+                fetchpriority="high"
+                decoding="async"
             >
 
             <!-- <span class="name"></span> -->
