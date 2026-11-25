@@ -76,6 +76,7 @@ br {
 
 #Home > img {
     width: 35%;
+    height: auto;
     border-radius: 1.875rem;
     position: absolute;
     top: 3.75rem;
@@ -161,6 +162,7 @@ br {
 
 #contact {
     border: #111;
+    border: 1px solid rgba(255, 255, 255, 0.55);
     color: white;
     width: 15%;
     padding: 0.9375rem;
@@ -302,7 +304,7 @@ br {
     background-color: #d4af37;
     margin-bottom: 20px;
     border-radius: 20px;
-    transition: all 0.5s;
+    transition: background-color 0.5s ease;
 }
 
 .progress--text {
@@ -492,6 +494,9 @@ br {
     #Home {
         padding: 2rem 1.25rem;
         margin-top: 3.125rem;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
     #Home > img {
@@ -610,6 +615,11 @@ br {
 
     .projects-section {
         padding: 1.5rem 1rem;
+    }
+
+    .project-thumb {
+        height: auto;
+        min-height: 8rem;
     }
 
     .project-links {
@@ -896,7 +906,7 @@ br {
     color: rgba(229, 157, 15, 0.6);
 }
 
-.testimonial-card {
+.js .testimonial-card {
     opacity: 0;
     translate: 0 2rem;
 }
@@ -927,6 +937,10 @@ br {
 }
 
 @media (max-width: 768px) {
+    .projects-section {
+        min-height: 100dvh;
+    }
+
     .testimonials-section {
         padding: 3rem 1.25rem;
     }
@@ -952,7 +966,7 @@ br {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .testimonial-card {
+    .js .testimonial-card {
         opacity: 1;
         translate: 0 0;
         transform: none;
@@ -998,8 +1012,9 @@ br {
 }
 
 #About,
-#Contact {
-    scroll-margin-top: 4.5rem;
+#Contact,
+#Testimonials {
+    scroll-margin-top: calc(var(--header-height, 3.25rem) + 1.125rem);
 }
 
 .contact-section {
@@ -1460,7 +1475,7 @@ br {
     position: absolute;
     top: -22rem;
     left: 50%;
-    width: 60rem;
+    width: min(60rem, 100vw);
     height: 34rem;
     transform: translateX(-50%);
     background: radial-gradient(
@@ -1678,6 +1693,19 @@ br {
 }
 
 @media (max-width: 620px) {
+    .progress--fill {
+        height: 0.7rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress--text {
+        position: static;
+        display: block;
+        margin-top: -0.35rem;
+        text-align: right;
+        font-size: 0.8rem;
+    }
+
     .contact-cards {
         grid-template-columns: 1fr;
     }
@@ -1867,6 +1895,11 @@ header::after {
 
 body {
     overflow-x: hidden;
+    overflow-x: clip;
+}
+
+body.menu-open {
+    overflow: hidden;
 }
 
 main {
@@ -1999,5 +2032,78 @@ main {
     .nav-menu,
     .nav-menu > a {
         transition: none;
+    }
+}
+
+
+@media (hover: none) {
+
+    #Home > img:hover,
+    .project-card:hover,
+    .testimonial-card:hover,
+    .contact-card:hover,
+    .contact-card:hover .contact-icon,
+    .contact-card:hover .contact-card-arrow,
+    .contact-submit:hover,
+    .contact-submit:hover span,
+    .footer-logo:hover,
+    .footer-wa:hover,
+    .back-to-top:hover span {
+        transform: none;
+    }
+
+    #Home > img:hover {
+        box-shadow: none;
+    }
+
+    #view:hover,
+    #contact:hover {
+        background-position: 100% 0;
+    }
+
+    .scroll-cue:hover .scroll-cue-icon {
+        animation-play-state: running;
+    }
+
+    .project-card:not(.featured):hover {
+        border-color: rgba(212, 175, 55, 0.4);
+        box-shadow: none;
+    }
+
+    .testimonial-card:not(.featured):hover {
+        border-color: rgba(212, 175, 55, 0.28);
+        box-shadow: none;
+    }
+
+    .testimonial-card:hover::before {
+        opacity: 0;
+    }
+
+    .contact-card:hover {
+        border-color: rgba(212, 175, 55, 0.28);
+        box-shadow: none;
+    }
+
+    .contact-card:hover .contact-card-arrow {
+        opacity: 0.55;
+    }
+
+    .contact-submit:hover {
+        filter: none;
+        box-shadow: 0 0.7rem 1.6rem rgba(212, 175, 55, 0.25);
+    }
+
+    .footer-logo:hover {
+        opacity: 1;
+    }
+
+    .footer-wa:hover {
+        box-shadow: none;
+    }
+
+    .nav-menu > a:hover,
+    .footer-col a:hover {
+        text-decoration: none;
+        padding-left: 0;
     }
 }

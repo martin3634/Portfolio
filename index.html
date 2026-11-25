@@ -10,6 +10,7 @@
         html, body { background: #0a0a0a; color-scheme: dark; }
         header { background: #111; }
     </style>
+    <script>document.documentElement.classList.add("js");</script>
     <link rel="preload" as="image" href="./martin%20logo%20svg.png">
     <link rel="preload" as="image" href="./Photo_realistic_smooth.png" fetchpriority="high">
     <link rel="stylesheet" href="style sheet.css">
@@ -20,7 +21,7 @@
     <header>
         <nav class="site-nav" aria-label="Main navigation">
             <a href="#Home" class="logo" aria-label="Martin - home">
-                <img src="./martin logo svg.png" alt="Martin logo">
+                <img src="./martin logo svg.png" alt="Martin logo" width="2172" height="724">
             </a>
 
             <button class="menu-toggle" id="menuToggle" type="button"
@@ -62,6 +63,9 @@
                 class="hero-image"
                 src="./Photo_realistic_smooth.png"
                 alt="my profile"
+                width="1083"
+                height="1280"
+                fetchpriority="high"
             >
 
             <!-- <span class="name"></span> -->
@@ -504,48 +508,92 @@
 
 
     <script>
+      (function () {
+        const skills = [
+          { selector: ".html", target: 80 },
+          { selector: ".css", target: 75 },
+          { selector: ".javascript", target: 70 },
+        ];
 
-      const skills = [
-  { selector: ".html", target: 80 },
-  { selector: ".css", target: 75 },
-  { selector: ".javascript", target: 70 },
-];
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        const progress = document.querySelector(".progress");
 
-const timers = [];
+        if (!progress) return;
 
-function animate(skill, index) {
-  const el = document.querySelector(skill.selector);
-  const fill = el.querySelector(".progress--fill");
-  const text = el.querySelector(".progress--text");
-  let value = 0;
+        const frames = [];
 
-  clearInterval(timers[index]);
-  fill.style.width = "0%";
-  text.textContent = "0%";
+        function setSkill(skill, value) {
+          const el = document.querySelector(skill.selector);
+          if (!el) return;
+          el.querySelector(".progress--fill").style.width = value + "%";
+          el.querySelector(".progress--text").textContent = value + "%";
+        }
 
-  timers[index] = setInterval(() => {
-    value++;
-    fill.style.width = value + "%";
-    text.textContent = value + "%";
-    if (value >= skill.target) clearInterval(timers[index]);
-  }, 30);
-}
+        function cancel(index) {
+          if (frames[index]) cancelAnimationFrame(frames[index]);
+          frames[index] = 0;
+        }
 
-function reset(skill, index) {
-  clearInterval(timers[index]);
-  const el = document.querySelector(skill.selector);
-  el.querySelector(".progress--fill").style.width = "0%";
-  el.querySelector(".progress--text").textContent = "0%";
-}
+        function animate(skill, index) {
+          cancel(index);
+          setSkill(skill, 0);
 
-const observer = new IntersectionObserver((entries) => {
-  skills.forEach((skill, i) =>
-    entries[0].isIntersecting ? animate(skill, i) : reset(skill, i)
-  );
-});
+          const duration = skill.target * 30;
+          const startTime = performance.now();
 
-observer.observe(document.querySelector(".progress"));
+          function tick(now) {
+            const value = Math.min(
+              skill.target,
+              Math.round(((now - startTime) / duration) * skill.target)
+            );
+            setSkill(skill, value);
+            if (value < skill.target) {
+              frames[index] = requestAnimationFrame(tick);
+            } else {
+              frames[index] = 0;
+            }
+          }
 
+          frames[index] = requestAnimationFrame(tick);
+        }
+
+        function reset(skill, index) {
+          cancel(index);
+          setSkill(skill, 0);
+        }
+
+        if (reduceMotion || !("IntersectionObserver" in window)) {
+          skills.forEach(function (skill) {
+            setSkill(skill, skill.target);
+          });
+          return;
+        }
+
+        let visible = false;
+        const observer = new IntersectionObserver(
+          function (entries) {
+            const isIntersecting = entries.some(function (entry) {
+              return entry.isIntersecting;
+            });
+
+            if (isIntersecting === visible) return;
+            visible = isIntersecting;
+
+            skills.forEach(function (skill, index) {
+              if (isIntersecting) {
+                animate(skill, index);
+              } else {
+                reset(skill, index);
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+
+        observer.observe(progress);
+      })();
     </script>
 
     <script>
@@ -560,8 +608,11 @@ observer.observe(document.querySelector(".progress"));
         if (!sections.length || reduceMotion) return;
 
         const GOLD = "212, 175, 55";
-        const LINK_DISTANCE = 130;
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const isMobile = window.matchMedia(
+          "(max-width: 768px), (pointer: coarse)"
+        ).matches;
+        const LINK_DISTANCE = isMobile ? 100 : 130;
+        const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
 
         const sprite = (function () {
           const size = 64;
@@ -603,21 +654,56 @@ observer.observe(document.querySelector(".progress"));
           const rect = scene.section.getBoundingClientRect();
           const width = Math.max(1, Math.round(rect.width));
           const height = Math.max(1, Math.round(rect.height));
+          const bitmapWidth = Math.round(width * dpr);
+          const bitmapHeight = Math.round(height * dpr);
+
+          if (
+            scene.width === width &&
+            scene.height === height &&
+            scene.canvas.width === bitmapWidth &&
+            scene.canvas.height === bitmapHeight
+          ) {
+            return;
+          }
+
+          const oldWidth = scene.width;
+          const oldHeight = scene.height;
 
           scene.width = width;
           scene.height = height;
-          scene.canvas.width = Math.round(width * dpr);
-          scene.canvas.height = Math.round(height * dpr);
+          scene.canvas.width = bitmapWidth;
+          scene.canvas.height = bitmapHeight;
           scene.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
           const count = Math.min(
-            85,
-            Math.max(26, Math.round((width * height) / 16000))
+            isMobile ? 32 : 85,
+            Math.max(
+              isMobile ? 18 : 26,
+              Math.round((width * height) / (isMobile ? 26000 : 16000))
+            )
           );
 
-          scene.particles = Array.from({ length: count }, function () {
-            return makeParticle(width, height);
-          });
+          if (scene.particles.length && oldWidth > 1 && oldHeight > 1) {
+            const scaleX = width / oldWidth;
+            const scaleY = height / oldHeight;
+
+            scene.particles.forEach(function (particle) {
+              particle.x *= scaleX;
+              particle.y *= scaleY;
+            });
+
+            while (scene.particles.length < count) {
+              scene.particles.push(makeParticle(width, height));
+            }
+
+            if (scene.particles.length > count) {
+              scene.particles.length = count;
+            }
+          } else {
+            scene.particles = Array.from({ length: count }, function () {
+              return makeParticle(width, height);
+            });
+          }
         }
 
         sections.forEach(function (section) {
@@ -641,12 +727,15 @@ observer.observe(document.querySelector(".progress"));
         });
 
         if ("ResizeObserver" in window) {
-          const resizeObserver = new ResizeObserver(function (entries) {
-            entries.forEach(function (entry) {
-              const scene = scenes.find(function (item) {
-                return item.section === entry.target;
-              });
-              if (scene) resize(scene);
+          let resizePending = false;
+
+          const resizeObserver = new ResizeObserver(function () {
+            if (resizePending) return;
+            resizePending = true;
+
+            requestAnimationFrame(function () {
+              resizePending = false;
+              scenes.forEach(resize);
             });
           });
 
@@ -664,6 +753,8 @@ observer.observe(document.querySelector(".progress"));
                 });
                 if (scene) scene.visible = entry.isIntersecting;
               });
+
+              syncRunning();
             },
             { rootMargin: "200px" }
           );
@@ -674,6 +765,33 @@ observer.observe(document.querySelector(".progress"));
         }
 
         let last = performance.now();
+        let frameId = 0;
+        let running = false;
+
+        function start() {
+          if (running || document.hidden) return;
+          running = true;
+          last = performance.now();
+          frameId = requestAnimationFrame(draw);
+        }
+
+        function stop() {
+          running = false;
+          if (frameId) cancelAnimationFrame(frameId);
+          frameId = 0;
+        }
+
+        function syncRunning() {
+          const hasVisibleScene = scenes.some(function (scene) {
+            return scene.visible;
+          });
+
+          if (hasVisibleScene && !document.hidden) {
+            start();
+          } else {
+            stop();
+          }
+        }
 
         function draw(now) {
           const delta = Math.min(64, now - last) / 16.667;
@@ -741,13 +859,17 @@ observer.observe(document.querySelector(".progress"));
             ctx.globalAlpha = 1;
           });
 
-          requestAnimationFrame(draw);
+          if (running) frameId = requestAnimationFrame(draw);
         }
 
-        requestAnimationFrame(draw);
+        syncRunning();
 
         document.addEventListener("visibilitychange", function () {
-          if (!document.hidden) last = performance.now();
+          if (document.hidden) {
+            stop();
+          } else {
+            syncRunning();
+          }
         });
       })();
     </script>
@@ -950,11 +1072,14 @@ observer.observe(document.querySelector(".progress"));
         const navMenu = document.getElementById("navMenu");
 
         if (menuToggle && navMenu) {
+          const mobileMenu = window.matchMedia("(max-width: 768px)");
+
           const closeMenu = function () {
             navMenu.classList.remove("is-open");
             menuToggle.classList.remove("is-open");
             menuToggle.setAttribute("aria-expanded", "false");
             menuToggle.setAttribute("aria-label", "Open navigation menu");
+            document.body.classList.remove("menu-open");
           };
 
           menuToggle.addEventListener("click", function () {
@@ -964,6 +1089,10 @@ observer.observe(document.querySelector(".progress"));
             menuToggle.setAttribute(
               "aria-label",
               isOpen ? "Close navigation menu" : "Open navigation menu"
+            );
+            document.body.classList.toggle(
+              "menu-open",
+              isOpen && mobileMenu.matches
             );
           });
 
@@ -986,21 +1115,33 @@ observer.observe(document.querySelector(".progress"));
           });
 
           window.addEventListener("resize", function () {
-            if (window.innerWidth > 768) closeMenu();
+            if (!mobileMenu.matches) closeMenu();
           });
         }
 
         const siteHeader = document.querySelector("header");
         const setHeaderOffset = function () {
           if (!siteHeader) return;
-          document.documentElement.style.setProperty(
-            "--header-height",
-            siteHeader.getBoundingClientRect().height + "px"
-          );
+          const height =
+            Math.round(siteHeader.getBoundingClientRect().height) + "px";
+          if (
+            document.documentElement.style.getPropertyValue(
+              "--header-height"
+            ) !== height
+          ) {
+            document.documentElement.style.setProperty(
+              "--header-height",
+              height
+            );
+          }
         };
         setHeaderOffset();
         window.addEventListener("load", setHeaderOffset);
         window.addEventListener("resize", setHeaderOffset);
+        window.addEventListener("orientationchange", setHeaderOffset);
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", setHeaderOffset);
+        }
       })();
     </script>
 
