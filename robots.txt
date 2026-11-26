@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /hycenth-collection/admin.html
+
+Sitemap: https://martin-dev-eight.vercel.app/sitemap.xml
